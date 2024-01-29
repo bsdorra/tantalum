@@ -10,7 +10,7 @@ void intersect(Ray ray, inout Intersection isect) {
 
 vec2 sample(inout vec4 state, Intersection isect, float lambda, vec2 wiLocal, inout vec3 throughput) {
     if (isect.mat == 1.0) {
-        float ior = cauchy(ior, abbe, lambda)/1.4;
+        float ior = cauchy(ior, abbe, lambda);
         return sampleRoughDielectric(state, wiLocal, 0.1, ior);
     } else {
         throughput *= vec3(0.05);

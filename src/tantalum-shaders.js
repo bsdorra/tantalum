@@ -542,11 +542,10 @@ var Shaders = {
         '}\n\n'                                                                            +
 
         'vec2 sample(inout vec4 state, Intersection isect, float lambda, vec2 wiLocal, in' +
-                                       'out vec3 throughput, float ior, float abbe) {\n'   +
+                                                              'out vec3 throughput) {\n'   +
         '    if (isect.mat == 2.0) {\n'                                                    +
         '        float ior = sellmeierIor(vec3(1.6215, 0.2563, 1.6445), vec3(0.0122, 0.05' +
                                                          '96, 147.4688), lambda)/1.4;\n'   +
-        '        // float ior = cauchy(ior, abbe, lambda)/1.4;\n'                          +
         '        return sampleDielectric(state, wiLocal, ior);\n'                          +
         '    } else if (isect.mat == 3.0) {\n'                                             +
         '        return sampleMirror(wiLocal);\n'                                          +
@@ -575,9 +574,7 @@ var Shaders = {
         'vec2 sample(inout vec4 state, Intersection isect, float lambda, vec2 wiLocal, in' +
                                                               'out vec3 throughput) {\n'   +
         '    if (isect.mat == 1.0) {\n'                                                    +
-        '        //float ior = sellmeierIor(vec3(1.6215, 0.2563, 1.6445), vec3(0.0122, 0.' +
-                                                        '0596, 17.4688), lambda)/1.8;\n'   +
-        '        float ior = cauchy(ior, abbe, lambda)/1.4;\n'                             +
+        '        float ior = cauchy(ior, abbe, lambda);\n'                                 +
         '        return sampleRoughDielectric(state, wiLocal, 0.1, ior);\n'                +
         '    } else {\n'                                                                   +
         '        throughput *= vec3(0.05);\n'                                              +
