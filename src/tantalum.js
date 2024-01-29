@@ -4,11 +4,11 @@ var Tantalum = function() {
     this.content        = document.getElementById("content");
     this.controls       = document.getElementById("controls");
     this.spectrumCanvas = document.getElementById("spectrum-canvas")
-    
+
     this.boundRenderLoop = this.renderLoop.bind(this);
-    
+
     this.savedImages = 0;
-    
+
     try {
         this.setupGL();
     } catch (e) {
@@ -26,10 +26,10 @@ var Tantalum = function() {
              "<pre>" + e.message + "</pre>");
         return;
     }
-    
+
     /* Ok, all seems well. Time to show the controls */
     this.controls.style.visibility = "visible";
-    
+
     window.requestAnimationFrame(this.boundRenderLoop);
 }
 
@@ -39,22 +39,22 @@ Tantalum.prototype.setupGL = function() {
     } catch (e) {}
     if (!gl)
         throw new Error("Could not initialise WebGL");
-    
+
     var floatExt    = gl.getExtension("OES_texture_float");
     var floatLinExt = gl.getExtension("OES_texture_float_linear");
     var floatBufExt = gl.getExtension("WEBGL_color_buffer_float");
     var multiBufExt = gl.getExtension("WEBGL_draw_buffers");
-    
+
     if (!floatExt || !floatLinExt)
         throw new Error("Your platform does not support float textures");
     if (!multiBufExt)
         throw new Error("Your platform does not support the draw buffers extension");
-        
+
     tgl.init(gl, multiBufExt);
-    
+
     if (!floatBufExt)
         this.colorBufferFloatTest(gl);
-    
+
     this.gl = gl;
 }
 
@@ -78,23 +78,23 @@ Tantalum.prototype.colorBufferFloatTest = function(gl) {
     vbo.addAttribute("Position", 3, gl.FLOAT, false);
     vbo.init(4);
     vbo.copy(new Float32Array([1.0, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0]));
-    
+
     gl.viewport(0, 0, 1, 1);
-    
+
     fbo.bind();
     fbo.drawBuffers(1);
     fbo.attachTexture(target, 0);
-    
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
-    
+
     shader.bind();
     vbo.draw(shader, gl.TRIANGLE_FAN);
     vbo.draw(shader, gl.TRIANGLE_FAN);
-    
+
     fbo.unbind();
     gl.disable(gl.BLEND);
-    
+
     /* Of course we can neither read back texture contents or read floating point
        FBO attachments in WebGL, so we have to do another pass, convert to uint8
        and check whether the results are ok.
@@ -103,10 +103,10 @@ Tantalum.prototype.colorBufferFloatTest = function(gl) {
     target.bind(0);
     packShader.uniformTexture("Tex", target);
     vbo.draw(packShader, gl.TRIANGLE_FAN);
-    
+
     var pixels = new Uint8Array([0, 0, 0, 0]);
     gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    
+
     if (pixels[0] != 8 || pixels[1] != 128 || pixels[2] != 16 || pixels[3] != 4) {
         console.log("Floating point blending test failed. Result was " + pixels + " but should have been " + [8, 128, 16, 4]);
         throw new Error("Your platform does not support floating point attachments");
@@ -119,37 +119,37 @@ Tantalum.prototype.setupUI = function() {
     var config = {
         "resolutions": [[820, 461], [1024, 576], [1280, 720], [1600, 900], [1920, 1080], [4096, 2160]],
         "scenes": [
-            {'shader': 'scene1', 'name': 'Lenses',               'posA': [0.5,  0.5],      'posB': [0.5, 0.5],        'spread': tcore.Renderer.SPREAD_POINT},
-            {'shader': 'scene6', 'name': 'Spheres',              'posA': map(-1.59, 0.65), 'posB': map(0.65, -0.75),  'spread': tcore.Renderer.SPREAD_BEAM},
-            {'shader': 'scene7', 'name': 'Playground',           'posA': [0.3, 0.52],      'posB': [0.3, 0.52],       'spread': tcore.Renderer.SPREAD_POINT},
+            // {'shader': 'scene1', 'name': 'Lenses',               'posA': [0.5,  0.5],      'posB': [0.5, 0.5],        'spread': tcore.Renderer.SPREAD_POINT},
+            // {'shader': 'scene6', 'name': 'Spheres',              'posA': map(-1.59, 0.65), 'posB': map(0.65, -0.75),  'spread': tcore.Renderer.SPREAD_BEAM},
+            // {'shader': 'scene7', 'name': 'Playground',           'posA': [0.3, 0.52],      'posB': [0.3, 0.52],       'spread': tcore.Renderer.SPREAD_POINT},
             {'shader': 'scene4', 'name': 'Prism',                'posA': [0.1,  0.65],     'posB': [0.4, 0.4],        'spread': tcore.Renderer.SPREAD_LASER},
-            {'shader': 'scene5', 'name': 'Cardioid',             'posA': [0.2,  0.5],      'posB': [0.2, 0.5],        'spread': tcore.Renderer.SPREAD_POINT},
-            {'shader': 'scene3', 'name': 'Cornell Box',          'posA': [0.5,  0.101],    'posB': [0.5, 0.2],        'spread': tcore.Renderer.SPREAD_AREA},
-            {'shader': 'scene2', 'name': 'Rough Mirror Spheres', 'posA': [0.25, 0.125],    'posB': [0.5, 0.66],       'spread': tcore.Renderer.SPREAD_LASER}
+            // {'shader': 'scene5', 'name': 'Cardioid',             'posA': [0.2,  0.5],      'posB': [0.2, 0.5],        'spread': tcore.Renderer.SPREAD_POINT},
+            // {'shader': 'scene3', 'name': 'Cornell Box',          'posA': [0.5,  0.101],    'posB': [0.5, 0.2],        'spread': tcore.Renderer.SPREAD_AREA},
+            // {'shader': 'scene2', 'name': 'Rough Mirror Spheres', 'posA': [0.25, 0.125],    'posB': [0.5, 0.66],       'spread': tcore.Renderer.SPREAD_LASER}
         ]
     };
-    
+
     var sceneShaders = [], sceneNames = [];
     for (var i = 0; i < config.scenes.length; ++i) {
         sceneShaders.push(config.scenes[i].shader);
         sceneNames.push(config.scenes[i].name);
     }
-    
+
     this.renderer = new tcore.Renderer(this.gl, this.canvas.width, this.canvas.height, sceneShaders);
     this.spectrumRenderer = new tcore.SpectrumRenderer(this.spectrumCanvas, this.renderer.getEmissionSpectrum());
-    
+
     /* Let's try and make member variables in JS a little less verbose... */
     var spectrumRenderer = this.spectrumRenderer;
     var renderer = this.renderer;
     var content = this.content;
     var canvas = this.canvas;
-    
+
     this.progressBar = new tui.ProgressBar("render-progress", true);
-    
+
     var resolutionLabels = [];
     for (var i = 0; i < config.resolutions.length; ++i)
         resolutionLabels.push(config.resolutions[i][0] + "x" + config.resolutions[i][1]);
-    
+
     new tui.ButtonGroup("resolution-selector", false, resolutionLabels, function(idx) {
         var width = config.resolutions[idx][0];
         var height = config.resolutions[idx][1];
@@ -161,35 +161,47 @@ Tantalum.prototype.setupUI = function() {
     });
     var spreadSelector = new tui.ButtonGroup("spread-selector", true, ["Point", "Cone", "Beam", "Laser", "Area"],
             renderer.setSpreadType.bind(renderer));
-    
+
     function selectScene(idx) {
         renderer.changeScene(idx);
         spreadSelector.select(config.scenes[idx].spread);
         renderer.setNormalizedEmitterPos(config.scenes[idx].posA, config.scenes[idx].posB);
     }
     new tui.ButtonGroup("scene-selector", true, sceneNames, selectScene);
-    
+
     var mouseListener = new tui.MouseListener(canvas, renderer.setEmitterPos.bind(renderer));
-    
+
     var temperatureSlider = new tui.Slider("emission-temperature", 1000, 10000, true, function(temperature) {
         this.setLabel("Temperature: " + temperature + "K");
         renderer.setEmitterTemperature(temperature);
         spectrumRenderer.setSpectrum(renderer.getEmissionSpectrum());
     });
-    
+
+    var iorSlider = new tui.Slider("ior", 100, 500, true, function(value) {
+        this.setLabel(value / 100.0);
+        renderer.setIor(value / 100.0);
+    });
+    iorSlider.setValue(150);
+
+    var abbeSlider = new tui.Slider("abbe", 0, 1000, true, function(value) {
+        this.setLabel(value / 10.0);
+        renderer.setAbbeNumber(value / 10.0);
+    });
+    abbeSlider.setValue(200.0);
+
     var bounceSlider = new tui.Slider("path-length", 1, 20, true, function(length) {
         this.setLabel((length - 1) + " light bounces");
         renderer.setMaxPathLength(length);
     });
     bounceSlider.setValue(12);
-    
+
     var sampleSlider = new tui.Slider("sample-count", 400, 700, true, function(exponent100) {
         var sampleCount = Math.floor(Math.pow(10, exponent100*0.01));
         this.setLabel(sampleCount + " light paths");
         renderer.setMaxSampleCount(sampleCount);
     });
     sampleSlider.setValue(600);
-    
+
     var gasOptions = [];
     for (var i = 0; i < GasDischargeLines.length; ++i)
         gasOptions.push(GasDischargeLines[i].name);
@@ -197,10 +209,10 @@ Tantalum.prototype.setupUI = function() {
         renderer.setEmitterGas(gasId);
         spectrumRenderer.setSpectrum(renderer.getEmissionSpectrum());
     });
-    
+
     temperatureSlider.show(false);
     gasGrid.show(false);
-    
+
     new tui.ButtonGroup("emission-selector", false, ["White", "Incandescent", "Gas Discharge"], function(type) {
         renderer.setEmissionSpectrumType(type);
         spectrumRenderer.setSmooth(type != tcore.Renderer.SPECTRUM_GAS_DISCHARGE);
@@ -208,14 +220,14 @@ Tantalum.prototype.setupUI = function() {
         temperatureSlider.show(type == tcore.Renderer.SPECTRUM_INCANDESCENT);
         gasGrid.show(type == tcore.Renderer.SPECTRUM_GAS_DISCHARGE);
     });
-    
+
     this.saveImageData = false;
     document.getElementById('save-button').addEventListener('click', (function() {
         this.saveImageData = true;
     }).bind(this));
-    
+
     selectScene(0);
-    
+
     this.overlay.className = "render-help";
     this.overlay.offsetHeight; /* Flush CSS changes */
     this.overlay.className += " render-help-transition";
@@ -227,34 +239,34 @@ Tantalum.prototype.setupUI = function() {
 }
 
 Tantalum.prototype.fail = function(message) {
-    var sorryP = document.createElement("p"); 
+    var sorryP = document.createElement("p");
     sorryP.appendChild(document.createTextNode("Sorry! :("));
     sorryP.style.fontSize = "50px";
 
     var failureP = document.createElement("p");
     failureP.className = "warning-box";
     failureP.innerHTML = message;
-    
-    var errorImg = document.createElement("img"); 
+
+    var errorImg = document.createElement("img");
     errorImg.title = errorImg.alt = "The Element of Failure";
     errorImg.src = "derp.gif";
-    
-    var failureDiv = document.createElement("div"); 
+
+    var failureDiv = document.createElement("div");
     failureDiv.className = "center";
     failureDiv.appendChild(sorryP);
     failureDiv.appendChild(errorImg);
     failureDiv.appendChild(failureP);
-    
+
     document.getElementById("content").appendChild(failureDiv);
     this.overlay.style.display = this.canvas.style.display = 'none';
 }
 
 Tantalum.prototype.renderLoop = function(timestamp) {
     window.requestAnimationFrame(this.boundRenderLoop);
-    
+
     if (!this.renderer.finished())
         this.renderer.render(timestamp);
-    
+
     if (this.saveImageData) {
         /* Ensure we redraw the image before we grab it. This is a strange one:
            To save power the renderer stops doing anything after it finished
@@ -265,14 +277,14 @@ Tantalum.prototype.renderLoop = function(timestamp) {
            in interest of my mental health I'm not going to dig deeper into this */
         if (this.renderer.finished())
             this.renderer.composite();
-        
+
         var fileName = "Tantalum";
         if (this.savedImages > 0)
             fileName += (this.savedImages + 1);
         fileName += ".png";
-        
+
         this.canvas.toBlob(function(blob) { saveAs(blob, fileName); });
-        
+
         this.savedImages++;
         this.saveImageData = false;
     }
